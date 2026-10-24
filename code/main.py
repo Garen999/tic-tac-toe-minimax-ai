@@ -1,11 +1,13 @@
 #creates board
 def create_board():
-    return [" " for _ in range(9)]
+    #return [" " for _ in range(9)]
+    return ["X","O","X","O","X"," "," ","O"," "]
 
 #displays board in terminal
 def display_board(grid):
     for i in range (0,9,3):
         print(grid[i],grid[i+1],grid[i+2])
+    print("------------------------------")
 
 #checks valid moves
 def get_valid_moves(grid):
@@ -51,6 +53,7 @@ def win_condition(grid,is_winner):
         return False
     return True
 
+#carries out a player's turn
 def player_turn(grid,symbol):
     valid_moves = get_valid_moves(grid)
     grid = make_move(grid,valid_moves,symbol)
@@ -63,6 +66,25 @@ def player_turn(grid,symbol):
     running = win_condition(grid,is_winner)
     return grid,running
 
+#gets following board states
+def get_next_states(grid,symbol):
+    new_valid_moves = get_valid_moves(grid)
+
+    for valid_move in new_valid_moves:
+        new_grid = grid.copy()
+        new_grid[valid_move] = symbol
+
+        display_board(new_grid)
+
+        is_winner = check_winner(new_grid,symbol)
+        if is_winner:
+            print(f"{symbol} wins")
+            print("------------------------------")
+        elif not get_valid_moves(new_grid):
+            print("Done")
+        else:
+            get_next_states(new_grid,"O" if symbol == "X" else "X")
+
 #initialsing board
 grid = create_board()
 running = True
@@ -70,13 +92,15 @@ current_player = "X"
 
 display_board(grid)
 
+get_next_states(grid,current_player)
+
 #main loop
-while running:
+# while running:
 
-    grid,running = player_turn(grid,current_player)
+#     grid,running = player_turn(grid,current_player)
 
-    if not running:
-        break
+#     if not running:
+#         break
 
-    current_player = "O" if current_player == "X" else "X"
+#     current_player = "O" if current_player == "X" else "X"
     
