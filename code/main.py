@@ -1,7 +1,6 @@
 #creates board
 def create_board():
-    #return [" " for _ in range(9)]
-    return ["X","O","X","O","X"," "," ","O"," "]
+    return [" " for _ in range(9)]
 
 #displays board in terminal
 def display_board(grid):
@@ -19,6 +18,7 @@ def make_move(grid,valid_moves,symbol):
         move = int(input(f"{symbol}, Choose a Space: "))
         if move in valid_moves:
             break
+
     grid[move] = symbol
     return grid
 
@@ -56,7 +56,12 @@ def win_condition(grid,is_winner):
 #carries out a player's turn
 def player_turn(grid,symbol):
     valid_moves = get_valid_moves(grid)
-    grid = make_move(grid,valid_moves,symbol)
+    
+    if symbol == "X":
+        grid = make_move(grid,valid_moves,"X")
+    else:
+        grid[get_best_move(grid)] = "O"
+
     display_board(grid)
 
     is_winner = check_winner(grid,symbol)
@@ -66,41 +71,60 @@ def player_turn(grid,symbol):
     running = win_condition(grid,is_winner)
     return grid,running
 
-#gets following board states
+#gets the following grid states
 def get_next_states(grid,symbol):
-    new_valid_moves = get_valid_moves(grid)
+    grid_states = {}
+    valid_moves = get_valid_moves(grid)
 
-    for valid_move in new_valid_moves:
+    for valid_move in valid_moves:
         new_grid = grid.copy()
         new_grid[valid_move] = symbol
+        grid_states.update({valid_move: new_grid})
 
-        display_board(new_grid)
+    return grid_states
 
-        is_winner = check_winner(new_grid,symbol)
-        if is_winner:
-            print(f"{symbol} wins")
-            print("------------------------------")
-        elif not get_valid_moves(new_grid):
-            print("Done")
+#minimax algorithim
+def minimax(grid,symbol):
+    scores = []
+    is_cross_winner = check_winner(grid,"X")
+    is_nought_winner = check_winner(grid,"O")
+    
+    if is_cross_winner:
+        return -1
+    elif is_nought_winner:
+        return 1
+    elif " " not in grid:
+        return 0
+    else:
+        for grid_state in get_next_states(grid,symbol).values():
+            scores.append(minimax(grid_state,"O" if symbol == "X" else "X"))
+        if symbol == "X":
+            return min(scores)
         else:
-            get_next_states(new_grid,"O" if symbol == "X" else "X")
+            return max(scores)
+        
+#chooses the best move for the bot to play
+def get_best_move(grid):
+    grid_state_scores = {}
+
+    for move, grid in get_next_states(grid,"O").items():
+        grid_state_scores.update({move: minimax(grid,"X")})
+        
+    return max(grid_state_scores, key=grid_state_scores.get)
 
 #initialsing board
 grid = create_board()
 running = True
 current_player = "X"
-
 display_board(grid)
 
-get_next_states(grid,current_player)
-
 #main loop
-# while running:
+while running:
 
-#     grid,running = player_turn(grid,current_player)
+    grid,running = player_turn(grid,current_player)
 
-#     if not running:
-#         break
+    if not running:
+        break
 
-#     current_player = "O" if current_player == "X" else "X"
+    current_player = "O" if current_player == "X" else "X"
     
