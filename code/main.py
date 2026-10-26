@@ -15,7 +15,8 @@ def get_valid_moves(grid):
 #makes move
 def make_move(grid,valid_moves,symbol):
     while True:
-        move = int(input(f"{symbol}, Choose a Space: "))
+        move = int(input("Choose a Space: "))
+        print("------------------------------")
         if move in valid_moves:
             break
 
